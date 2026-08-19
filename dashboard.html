@@ -724,22 +724,27 @@ function seedLocal() {
 const byOrd = (a, b) => (a.ord ?? 0) - (b.ord ?? 0);
 const byNew = (a, b) => (b.at ?? 0) - (a.at ?? 0);
 
+/** Collections lisibles par tout le monde (aucune donnée personnelle). */
+const PUB = ['services', 'photos', 'dispo'];
+let unsubRdv = null;
+
 /** Démarre la synchronisation. cb() est rappelé à chaque changement. */
 function startData(cb) {
   onData = cb;
   if (LIVE && fdb) {
     let got = 0;
-    const tick = () => { if (++got >= COLS.length + 1) ready = true; onData() };
+    const tick = () => { if (++got >= PUB.length + 1) ready = true; onData() };
     fdb.doc('site/cfg').onSnapshot(
       s => { if (s.exists) D.cfg = { ...CFG0, ...s.data() }; tick() },
       e => netErr(e));
-    COLS.forEach(c => fdb.collection(c).onSnapshot(
+    PUB.forEach(c => fdb.collection(c).onSnapshot(
       s => {
         D[c] = s.docs.map(d => ({ id: d.id, ...d.data() }));
-        D[c].sort(c === 'rdv' || c === 'dispo' ? byNew : byOrd);
+        D[c].sort(c === 'dispo' ? byNew : byOrd);
         tick();
       },
       e => netErr(e)));
+    subRdv();
   } else {
     const v = lsRead();
     if (v) Object.assign(D, v); else seedLocal();
@@ -752,9 +757,26 @@ function startData(cb) {
     setTimeout(onData, 0);
   }
 }
+
+/** Les demandes de rendez-vous contiennent des données personnelles :
+    la propriétaire voit tout, une cliente connectée voit les siennes,
+    une visiteuse anonyme n'y accède pas du tout. */
+function subRdv() {
+  if (!LIVE || !fdb) return;
+  if (unsubRdv) { unsubRdv(); unsubRdv = null }
+  D.rdv = [];
+  let q = null;
+  if (Auth.isAdmin()) q = fdb.collection('rdv');
+  else if (Auth.me) q = fdb.collection('rdv').where('user', '==', Auth.me.uid);
+  else { onData(); return }
+  unsubRdv = q.onSnapshot(
+    s => { D.rdv = s.docs.map(d => ({ id: d.id, ...d.data() })).sort(byNew); onData() },
+    e => netErr(e));
+}
 function netErr(e) {
-  console.error(e);
-  banner("Connexion à la base de données impossible. Vérifiez les règles Firebase.", 1);
+  console.error('Firestore :', e && e.code, e && e.message);
+  if (e && e.code === 'permission-denied') return;   // lecture non autorisée : comportement normal
+  banner("Connexion interrompue. Vos changements seront envoyés au retour du réseau.", 1);
 }
 
 /* --- écriture --- */
@@ -796,6 +818,7 @@ const Auth = {
           try { const s = await fdb.doc('users/' + u.uid).get(); p = s.data() || {} } catch (e) {}
           Auth.me = { uid: u.uid, email: u.email, nom: p.nom || u.email.split('@')[0], tel: p.tel || '', adresse: p.adresse || '' };
         } else Auth.me = null;
+        subRdv();
         cb();
       });
     } else {
@@ -1147,13 +1170,28 @@ function rdvCards(list) {
   }).join('');
 }
 async function setRdv(id, st) {
+  const r = D.rdv.find(x => x.id === id);
   await put('rdv', { id, st });
+  if (r) await syncBloc({ ...r, st });
   toast(st === 'ok' ? 'Rendez-vous confirmé et ajouté au calendrier' : 'Rendez-vous refusé');
+}
+
+/* Le créneau d'un rendez-vous confirmé est retiré du site via la collection
+   « dispo », qui ne contient qu'une date et une heure — aucune donnée personnelle. */
+function blocDe(r) {
+  return D.dispo.find(d => d.rdv === r.id && d.type === 'block');
+}
+async function syncBloc(r) {
+  const ex = blocDe(r);
+  if (r.st === 'ok') {
+    if (ex && (ex.date !== r.date || ex.time !== r.time)) await put('dispo', { id: ex.id, date: r.date, time: r.time });
+    else if (!ex) await put('dispo', { date: r.date, time: r.time, type: 'block', rdv: r.id, at: Date.now() });
+  } else if (ex) await del('dispo', ex.id);
 }
 function rmRdv(id) {
   sheet(sheetTop('Supprimer la demande ?') +
     `<p class="lede" style="margin-bottom:22px">Elle disparaîtra définitivement. La cliente n’en sera pas avertie.</p>
-     <button class="b b-br b-w" onclick="busyBtn(this,async()=>{await del('rdv','${id}');closeSheet();toast('Supprimée')})">Supprimer</button>
+     <button class="b b-br b-w" onclick="busyBtn(this,async()=>{const r=D.rdv.find(x=>x.id==='${id}');const b=r&&blocDe(r);if(b)await del('dispo',b.id);await del('rdv','${id}');closeSheet();toast('Supprimée')})">Supprimer</button>
      <button class="b b-gh b-w" style="margin-top:10px" onclick="closeSheet()">Annuler</button>`);
 }
 function repro(id) {
@@ -1177,7 +1215,9 @@ function repDay(id, iso, el) {
       : '<p class="lede" style="grid-column:1/-1;padding:14px;font-size:14px">Aucun créneau ce jour-là.</p>'}</div>`;
 }
 async function doRep(id, iso, h) {
+  const r = D.rdv.find(x => x.id === id);
   await put('rdv', { id, date: iso, time: h, st: 'moved' });
+  if (r) await syncBloc({ ...r, date: iso, time: h, st: 'moved' });
   closeSheet(); toast('Créneau du ' + fd(iso) + ' proposé');
 }
 
@@ -1236,7 +1276,9 @@ function aCal() {
 
 function openDayS(iso) {
   const list = rdvOf(iso);
-  const slots = slotsFor(iso);
+  // on réaffiche aussi les créneaux occupés par un rendez-vous confirmé
+  const pris = list.filter(r => r.st === 'ok').map(r => r.time);
+  const slots = [...new Set([...slotsFor(iso), ...pris])].sort();
   const shut = dayShut(iso), weekly = closedDay(iso);
   const tag = { wait: ['En attente', 't-w'], ok: ['Confirmé', 't-o'], moved: ['Reproposé', 't-m'] };
   sheet(sheetTop(fdLong(iso), weekly ? 'Jour de fermeture hebdomadaire' : '') + `
