@@ -837,12 +837,14 @@ const Auth = {
     }
   },
   async login(email, pw) {
-    if (LIVE && fauth) await fauth.signInWithEmailAndPassword(email, pw);
-    else {
-      const u = D.users.find(x => x.email === email && x.pw === pw);
-      if (!u) throw new Error('Courriel ou mot de passe incorrect');
-      Auth._local(u);
+    if (LIVE && fauth) {
+      const c = await fauth.signInWithEmailAndPassword(email, pw);
+      return c.user;                       // on rend l'utilisateur tout de suite
     }
+    const u = D.users.find(x => x.email === email && x.pw === pw);
+    if (!u) throw new Error('Courriel ou mot de passe incorrect');
+    Auth._local(u);
+    return u;
   },
   async logout() {
     if (LIVE && fauth) await fauth.signOut();
@@ -863,9 +865,15 @@ const Auth = {
     try { sessionStorage.setItem('hm_me', JSON.stringify(Auth.me)) } catch (e) {}
     onData();
   },
+  /* On interroge d'abord Firebase directement : au moment du clic sur « Se connecter »,
+     le profil n'est pas encore chargé et Auth.me est encore vide. */
+  courriel() {
+    const u = (LIVE && fauth && fauth.currentUser) ? fauth.currentUser.email : (Auth.me && Auth.me.email);
+    return (u || '').trim().toLowerCase();
+  },
   isAdmin() {
     if (!LIVE) return false;
-    return !!(Auth.me && ADMIN_EMAIL && Auth.me.email.toLowerCase() === ADMIN_EMAIL.toLowerCase());
+    return !!ADMIN_EMAIL && Auth.courriel() === ADMIN_EMAIL.trim().toLowerCase();
   }
 };
 
@@ -1093,8 +1101,19 @@ function tryPin() {
 async function doAdminLogin() {
   const em = val('lem', 'Courriel invalide', isMail), pw = val('lpw', 'Mot de passe requis');
   if (!em || !pw) return;
-  await Auth.login(em.toLowerCase(), pw);
-  if (!Auth.isAdmin()) { await Auth.logout(); return toast('Ce compte n’a pas accès à la gestion', 1) }
+  const u = await Auth.login(em.toLowerCase(), pw);
+  const connecte = ((u && u.email) || Auth.courriel() || '').trim().toLowerCase();
+  const attendu = (ADMIN_EMAIL || '').trim().toLowerCase();
+  if (connecte !== attendu) {
+    await Auth.logout();
+    return sheet(sheetTop('Accès refusé') + `
+      <p class="lede" style="margin-bottom:18px">Ce compte n’est pas celui déclaré comme propriétaire du salon.</p>
+      <div class="box"><div class="row"><span>Compte connecté</span><b>${esc(connecte || '—')}</b></div>
+      <div class="row"><span>Compte attendu</span><b>${esc(attendu || 'non configuré')}</b></div></div>
+      <p class="lede" style="margin-top:16px;font-size:13.5px">Pour changer, modifiez <b>ADMIN_EMAIL</b> dans les deux fichiers HTML,
+      ainsi que le courriel dans les règles Firestore.</p>
+      <button class="b b-br b-w" style="margin-top:16px" onclick="closeSheet()">Fermer</button>`);
+  }
   render();
 }
 async function quitAdm() {
@@ -1111,6 +1130,7 @@ function vAdmin() {
   const sem = D.rdv.filter(r => r.st === 'ok' && r.date >= dPlus(0) && r.date <= dPlus(7)).length;
   const T = (k, l, n) => `<button class="tb" aria-selected="${A.tab === k}" onclick="A.tab='${k}';A.q='';render()">${l}${n ? ` <span class="bdg bdg-a">${n}</span>` : ''}</button>`;
   const body = { rdv: aRdv, cal: aCal, stat: aStat, pho: aPho, srv: aSrv, inf: aInf }[A.tab]();
+  const vide = !D.services.length && !D.photos.length;
   return `<div class="wrap" style="padding:30px 0 90px">
     <div class="eb">Tableau de bord</div>
     <h2 class="dis h2" style="margin:14px 0 8px">Bonjour</h2>
@@ -1121,8 +1141,24 @@ function vAdmin() {
       <div><b>${sem}</b><span class="tiny">Cette semaine</span></div>
       <div><b>${ok}</b><span class="tiny">Confirmés</span></div>
     </div>
+    ${vide ? `<div class="cd" style="border-color:var(--gold)">
+      <h3 class="dis h3" style="margin-bottom:10px">Votre site est encore vide</h3>
+      <p class="lede" style="margin-bottom:18px">Chargez les prestations et les visuels de départ,
+      puis remplacez-les par les vôtres dans les onglets Services et Photos.</p>
+      <button class="b b-br b-w" onclick="busyBtn(this,seed)">Charger le contenu de départ</button>
+    </div>` : ''}
     <div class="tabs">${T('rdv', 'Demandes', wR)}${T('cal', 'Calendrier')}${T('stat', 'Statistiques')}${T('pho', 'Photos')}${T('srv', 'Services')}${T('inf', 'Réglages')}</div>
     ${body}</div>`;
+}
+
+/* Écrit dans Firestore les prestations et les visuels par défaut. */
+async function seed() {
+  await putCfg(D.cfg);
+  let o = 0;
+  for (const s of SEED.services) await put('services', { ...s, ord: o++ });
+  o = 0;
+  for (const p of SEED.photos) await put('photos', { ...p, ord: o++, img: null });
+  toast('Contenu de départ chargé');
 }
 
 /* ==========================================================
