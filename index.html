@@ -729,22 +729,27 @@ function seedLocal() {
 const byOrd = (a, b) => (a.ord ?? 0) - (b.ord ?? 0);
 const byNew = (a, b) => (b.at ?? 0) - (a.at ?? 0);
 
+/** Collections lisibles par tout le monde (aucune donnée personnelle). */
+const PUB = ['services', 'photos', 'dispo'];
+let unsubRdv = null;
+
 /** Démarre la synchronisation. cb() est rappelé à chaque changement. */
 function startData(cb) {
   onData = cb;
   if (LIVE && fdb) {
     let got = 0;
-    const tick = () => { if (++got >= COLS.length + 1) ready = true; onData() };
+    const tick = () => { if (++got >= PUB.length + 1) ready = true; onData() };
     fdb.doc('site/cfg').onSnapshot(
       s => { if (s.exists) D.cfg = { ...CFG0, ...s.data() }; tick() },
       e => netErr(e));
-    COLS.forEach(c => fdb.collection(c).onSnapshot(
+    PUB.forEach(c => fdb.collection(c).onSnapshot(
       s => {
         D[c] = s.docs.map(d => ({ id: d.id, ...d.data() }));
-        D[c].sort(c === 'rdv' || c === 'dispo' ? byNew : byOrd);
+        D[c].sort(c === 'dispo' ? byNew : byOrd);
         tick();
       },
       e => netErr(e)));
+    subRdv();
   } else {
     const v = lsRead();
     if (v) Object.assign(D, v); else seedLocal();
@@ -757,9 +762,26 @@ function startData(cb) {
     setTimeout(onData, 0);
   }
 }
+
+/** Les demandes de rendez-vous contiennent des données personnelles :
+    la propriétaire voit tout, une cliente connectée voit les siennes,
+    une visiteuse anonyme n'y accède pas du tout. */
+function subRdv() {
+  if (!LIVE || !fdb) return;
+  if (unsubRdv) { unsubRdv(); unsubRdv = null }
+  D.rdv = [];
+  let q = null;
+  if (Auth.isAdmin()) q = fdb.collection('rdv');
+  else if (Auth.me) q = fdb.collection('rdv').where('user', '==', Auth.me.uid);
+  else { onData(); return }
+  unsubRdv = q.onSnapshot(
+    s => { D.rdv = s.docs.map(d => ({ id: d.id, ...d.data() })).sort(byNew); onData() },
+    e => netErr(e));
+}
 function netErr(e) {
-  console.error(e);
-  banner("Connexion à la base de données impossible. Vérifiez les règles Firebase.", 1);
+  console.error('Firestore :', e && e.code, e && e.message);
+  if (e && e.code === 'permission-denied') return;   // lecture non autorisée : comportement normal
+  banner("Connexion interrompue. Vos changements seront envoyés au retour du réseau.", 1);
 }
 
 /* --- écriture --- */
@@ -801,6 +823,7 @@ const Auth = {
           try { const s = await fdb.doc('users/' + u.uid).get(); p = s.data() || {} } catch (e) {}
           Auth.me = { uid: u.uid, email: u.email, nom: p.nom || u.email.split('@')[0], tel: p.tel || '', adresse: p.adresse || '' };
         } else Auth.me = null;
+        subRdv();
         cb();
       });
     } else {
