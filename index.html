@@ -842,12 +842,14 @@ const Auth = {
     }
   },
   async login(email, pw) {
-    if (LIVE && fauth) await fauth.signInWithEmailAndPassword(email, pw);
-    else {
-      const u = D.users.find(x => x.email === email && x.pw === pw);
-      if (!u) throw new Error('Courriel ou mot de passe incorrect');
-      Auth._local(u);
+    if (LIVE && fauth) {
+      const c = await fauth.signInWithEmailAndPassword(email, pw);
+      return c.user;                       // on rend l'utilisateur tout de suite
     }
+    const u = D.users.find(x => x.email === email && x.pw === pw);
+    if (!u) throw new Error('Courriel ou mot de passe incorrect');
+    Auth._local(u);
+    return u;
   },
   async logout() {
     if (LIVE && fauth) await fauth.signOut();
@@ -868,9 +870,15 @@ const Auth = {
     try { sessionStorage.setItem('hm_me', JSON.stringify(Auth.me)) } catch (e) {}
     onData();
   },
+  /* On interroge d'abord Firebase directement : au moment du clic sur « Se connecter »,
+     le profil n'est pas encore chargé et Auth.me est encore vide. */
+  courriel() {
+    const u = (LIVE && fauth && fauth.currentUser) ? fauth.currentUser.email : (Auth.me && Auth.me.email);
+    return (u || '').trim().toLowerCase();
+  },
   isAdmin() {
     if (!LIVE) return false;
-    return !!(Auth.me && ADMIN_EMAIL && Auth.me.email.toLowerCase() === ADMIN_EMAIL.toLowerCase());
+    return !!ADMIN_EMAIL && Auth.courriel() === ADMIN_EMAIL.trim().toLowerCase();
   }
 };
 
@@ -1137,9 +1145,11 @@ function vHome() {
   </div></section>${vFoot()}`;
 }
 function vFoot() {
+  // L'espace de gestion n'est pas lié depuis le site : on y accède
+  // uniquement en saisissant /dashboard.html dans la barre d'adresse.
   return `<footer class="ft"><div class="wrap"><div class="ft-b">
     <span>© ${new Date().getFullYear()} ${esc(D.cfg.nom)}</span>
-    <a href="dashboard.html" style="color:var(--muted)">Espace de gestion</a>
+    <span>Sur rendez-vous</span>
   </div></div></footer>`;
 }
 function zoom(id) {
