@@ -416,7 +416,7 @@ a{color:inherit;text-decoration:none}
 .toast.on{opacity:1;transform:translateX(-50%)}
 .toast.bad{background:linear-gradient(135deg,#F6D2DA,var(--rose));color:#2A0A12;
   box-shadow:0 18px 46px -14px rgba(222,147,164,.8)}
-.bar{padding:11px 14px;text-align:center;font-size:10px;letter-spacing:.2em;text-transform:uppercase;
+.bar{padding:11px 14px;text-align:center;font-size:13px;letter-spacing:.02em;
   background:linear-gradient(90deg,rgba(217,183,106,.1),rgba(217,183,106,.03));
   border-bottom:1px solid rgba(217,183,106,.3);color:var(--gold-lt)}
 .bar.bad{background:linear-gradient(90deg,rgba(222,147,164,.14),transparent);
@@ -594,8 +594,8 @@ a{color:inherit;text-decoration:none}
 .line{display:flex;align-items:center;gap:12px;padding:9px 0}
 .line-n{flex:0 0 34%;font-size:14px;color:var(--cream);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .line-v{flex:0 0 auto;font-size:13px;color:var(--muted);text-align:right;min-width:64px}
-.bar{flex:1;height:7px;background:rgba(255,255,255,.07);border-radius:99px;overflow:hidden}
-.bar i{display:block;height:100%;background:var(--g-gold);border-radius:99px;
+.gbar{flex:1;height:7px;background:rgba(255,255,255,.08);border-radius:99px;overflow:hidden}
+.gbar i{display:block;height:100%;background:var(--g-gold);border-radius:99px;
   transition:width .6s cubic-bezier(.2,.9,.25,1)}
 
 @media(max-width:760px){
@@ -608,6 +608,129 @@ a{color:inherit;text-decoration:none}
   .line-n{flex:0 0 30%;font-size:13px}
   .line-v{min-width:56px;font-size:12px}
   .cols{height:120px;gap:5px}
+}
+
+
+/* ---- mot de passe : afficher / oublié ---- */
+.pw-eye{position:absolute;right:10px;top:50%;transform:translateY(-50%);padding:7px 10px;
+  font-size:12.5px;font-weight:500;color:var(--gold);border-radius:3px}
+.pw-eye:hover{background:rgba(226,194,124,.12)}
+.lnk{display:block;width:100%;margin-top:14px;padding:10px;font-size:14px;color:var(--gold-lt);
+  text-decoration:underline;text-underline-offset:3px;text-align:center}
+.lnk:hover{color:var(--cream)}
+.lnk.load{color:transparent!important}
+
+/* ==========================================================
+   Accueil éditorial : couverture, confiance, étapes, avis
+   ========================================================== */
+.band{background:var(--plum);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+
+/* --- couverture --- */
+.hero{display:grid;grid-template-columns:1.05fr .95fr;gap:clamp(28px,5vw,72px);align-items:center;
+  padding:clamp(34px,6vw,76px) 0 clamp(30px,5vw,56px)}
+.hero-t{min-width:0}
+.hero .h1{margin:16px 0 8px;font-size:clamp(46px,7.4vw,96px)}
+.hero-s{font-style:italic;font-size:clamp(20px,2.4vw,26px);margin-bottom:16px}
+.hero-a{display:flex;gap:12px;flex-wrap:wrap;margin-top:26px}
+.hero-v{min-width:0;position:relative}
+.hero-v::before{content:'';position:absolute;inset:-6% -8% -4% 8%;
+  background:radial-gradient(closest-side,rgba(226,194,124,.18),transparent);z-index:0;pointer-events:none}
+.hero-fr{position:relative;z-index:1;aspect-ratio:4/5;max-height:640px;margin-left:auto;width:min(100%,480px);
+  box-shadow:0 40px 90px -30px rgba(0,0,0,.9),0 0 0 1px rgba(226,194,124,.28)}
+.hero-fr>img{filter:grayscale(1) sepia(.18) contrast(1.08) brightness(1)}
+
+/* --- prochaine disponibilité --- */
+.dispo{display:flex;align-items:center;gap:14px;margin-top:22px;padding:14px 18px;text-align:left;
+  width:100%;max-width:470px;border:1px solid rgba(134,211,174,.35);
+  background:linear-gradient(110deg,rgba(134,211,174,.09),transparent 70%);transition:.25s}
+.dispo:hover{border-color:var(--jade);background:linear-gradient(110deg,rgba(134,211,174,.15),transparent 70%)}
+.dispo>i{flex:0 0 10px;height:10px;border-radius:50%;background:var(--jade);
+  box-shadow:0 0 0 0 rgba(134,211,174,.6);animation:pouls 2.2s infinite}
+@keyframes pouls{70%{box-shadow:0 0 0 10px rgba(134,211,174,0)}100%{box-shadow:0 0 0 0 rgba(134,211,174,0)}}
+.dispo>span{flex:1;min-width:0;font-size:13px;color:var(--muted)}
+.dispo b{display:block;font-size:16px;font-weight:500;color:var(--cream);margin-top:2px}
+.dispo em{font-style:normal;font-size:13px;font-weight:500;color:var(--jade);white-space:nowrap}
+
+/* --- repères de confiance --- */
+.trust{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.trust span{padding:22px 18px;font-size:14px;color:var(--muted);text-align:center}
+.trust span+span{border-left:1px solid var(--line)}
+.trust b{display:block;font-family:var(--dis);font-size:22px;font-weight:400;color:var(--cream);margin-bottom:4px}
+
+/* --- comment ça se passe --- */
+.how{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);
+  border:1px solid var(--line);margin-bottom:22px}
+.how>div{background:var(--ink2);padding:20px 18px}
+.how i{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:50%;
+  background:var(--g-gold);color:var(--on-accent);font-style:normal;font-weight:600;font-size:14px;margin-bottom:12px}
+.how b{display:block;color:var(--cream);font-size:16px;font-weight:500;margin-bottom:4px}
+.how span{font-size:14px;color:var(--muted);line-height:1.5}
+
+/* --- places restantes sous chaque jour --- */
+.day{width:70px;padding:11px 0 9px}
+.day em{display:block;font-style:normal;font-size:10.5px;font-weight:500;color:var(--jade);margin-top:4px;letter-spacing:.01em}
+.day:disabled em{color:var(--muted)}
+.day[aria-pressed=true] em{color:#3E3217}
+.stepd{font-weight:400;color:var(--silver)}
+
+/* --- avis --- */
+.avis{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.avis figure{margin:0;padding:24px 22px;border:1px solid var(--line);background:var(--g-panel);position:relative}
+.avis figure::before{content:'“';position:absolute;right:18px;top:4px;font-family:var(--dis);font-size:72px;
+  line-height:1;color:rgba(226,194,124,.22)}
+.avis-s{color:var(--gold);font-size:15px;letter-spacing:.12em;margin-bottom:12px}
+.avis-s span{color:rgba(255,255,255,.14)}
+.avis blockquote{margin:0;font-family:var(--dis);font-style:italic;font-size:18px;line-height:1.5;color:var(--cream)}
+.avis figcaption{margin-top:14px;font-size:13px;font-weight:500;color:var(--gold-lt)}
+
+/* --- bon à savoir --- */
+.infos{list-style:none;display:grid;gap:10px;max-width:760px}
+.infos li{position:relative;padding:15px 18px 15px 46px;border:1px solid var(--line);background:var(--g-panel);
+  font-size:15.5px;color:var(--silver)}
+.infos li::before{content:'';position:absolute;left:19px;top:22px;width:10px;height:10px;border-radius:50%;
+  background:var(--g-gold)}
+
+/* --- contact --- */
+.ct{display:flex;flex-wrap:wrap;gap:10px}
+
+/* --- visionneuse --- */
+.lb{position:relative}
+.lb-fr{aspect-ratio:4/5;border-radius:999px 999px 2px 2px;touch-action:pan-y}
+.lb-n{position:absolute;top:50%;transform:translateY(-50%);z-index:6;width:46px;height:46px;border-radius:50%;
+  background:rgba(10,9,8,.8);border:1px solid rgba(226,194,124,.45);color:var(--gold-lt);font-size:24px;
+  display:grid;place-items:center;transition:.2s}
+.lb-n:hover{background:var(--g-gold);color:var(--on-accent)}
+.lb-p{left:10px} .lb-s{right:10px}
+
+/* --- tableau de bord : prochain rendez-vous, avis --- */
+.cd.nx{border-color:rgba(226,194,124,.5);background:linear-gradient(140deg,rgba(226,194,124,.12),var(--plum) 70%)}
+.nx-l{margin-top:8px}
+.nx-l b{display:block;font-size:26px;color:var(--cream)}
+.nx-l span{display:block;margin-top:6px;font-size:15px;color:var(--silver)}
+.av-l{display:flex;gap:14px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--line);font-size:14px}
+.av-l>div{flex:1;min-width:0}
+.av-l>div>span:last-child{color:var(--muted)}
+
+@media(max-width:760px){
+  .hero{grid-template-columns:1fr;gap:26px;padding-top:22px}
+  .hero-v{order:-1}
+  .hero-fr{width:78%;margin:0 auto;max-height:430px}
+  .hero .h1{font-size:clamp(42px,12vw,62px)}
+  .hero-a .b{flex:1 1 100%}
+  .dispo{max-width:none}
+  .trust{grid-template-columns:1fr}
+  .trust span{padding:15px 12px;display:flex;justify-content:space-between;align-items:baseline;gap:12px;text-align:left}
+  .trust span+span{border-left:0;border-top:1px solid var(--line)}
+  .trust b{font-size:18px;margin:0}
+  .how{grid-template-columns:1fr}
+  .how>div{display:grid;grid-template-columns:34px 1fr;column-gap:12px;padding:15px 14px}
+  .how i{grid-row:span 2;margin:0}
+  .day{width:66px}
+  .avis blockquote{font-size:16.5px}
+  .ct .b{flex:1 1 calc(50% - 5px)}
+  .ct .b-br{flex-basis:100%}
+  .lb-n{width:40px;height:40px;font-size:21px}
+  .nx-l b{font-size:22px}
 }
 
 </style>
@@ -661,6 +784,7 @@ if (LIVE) {
     firebase.initializeApp(FIREBASE_CONFIG);
     fdb = firebase.firestore();
     fauth = firebase.auth();
+    fauth.languageCode = 'fr';
     fdb.enablePersistence({ synchronizeTabs: true }).catch(() => {});
   } catch (e) { FAIL = e.message; }
 }
@@ -801,7 +925,7 @@ async function del(col, id) {
 }
 async function putCfg(patch) {
   Object.assign(D.cfg, patch);
-  if (LIVE && fdb) await fdb.doc('site/cfg').set(D.cfg, { merge: true });
+  if (LIVE && fdb) await fdb.doc('site/cfg').set(patch, { merge: true });
   else { lsWrite(); bcast(); onData() }
 }
 
@@ -845,6 +969,10 @@ const Auth = {
     if (!u) throw new Error('Courriel ou mot de passe incorrect');
     Auth._local(u);
     return u;
+  },
+  async reset(email) {
+    if (!(LIVE && fauth)) throw new Error('Réinitialisation indisponible hors connexion Firebase');
+    await fauth.sendPasswordResetEmail(email);
   },
   async logout() {
     if (LIVE && fauth) await fauth.signOut();
@@ -918,6 +1046,21 @@ function nextFree() {
   }
   return null;
 }
+/* durée d'une prestation (« 2 h 30 » → 150 minutes) et heure de fin */
+function dureeMin(s) {
+  const m = /(\d+)\s*h(?:\s*(\d+))?/i.exec((s && s.d) || '');
+  if (m) return (+m[1]) * 60 + (+(m[2] || 0));
+  const mn = /(\d+)\s*min/i.exec((s && s.d) || '');
+  return mn ? +mn[1] : 60;
+}
+function finH(h, min) {
+  const [a, b] = h.split(':').map(Number), t = a * 60 + b + min;
+  return String(Math.floor(t / 60) % 24).padStart(2, '0') + ':' + String(t % 60).padStart(2, '0');
+}
+const libres = iso => slotsFor(iso).filter(h => free(iso, h)).length;
+const lienCarte = a => 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(a || '');
+const lienInsta = h => 'https://instagram.com/' + String(h || '').replace(/^@/, '').trim();
+
 /* utilitaires de calendrier */
 const isoOf = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 const MOIS = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
@@ -964,12 +1107,31 @@ document.addEventListener('keydown', e => {
   }
 });
 
+/* --- erreurs Firebase en français --- */
+function frErr(e) {
+  const m = {
+    'auth/invalid-credential': 'Courriel ou mot de passe incorrect',
+    'auth/wrong-password': 'Courriel ou mot de passe incorrect',
+    'auth/user-not-found': 'Courriel ou mot de passe incorrect',
+    'auth/invalid-login-credentials': 'Courriel ou mot de passe incorrect',
+    'auth/invalid-email': 'Adresse courriel invalide',
+    'auth/missing-password': 'Indiquez votre mot de passe',
+    'auth/too-many-requests': 'Trop de tentatives. Patientez quelques minutes ou réinitialisez votre mot de passe.',
+    'auth/network-request-failed': 'Pas de connexion internet',
+    'auth/email-already-in-use': 'Ce courriel a déjà un compte',
+    'auth/weak-password': 'Mot de passe trop court — 6 caractères minimum',
+    'auth/unauthorized-domain': 'Ce domaine n’est pas autorisé dans Firebase',
+    'permission-denied': 'Action non autorisée'
+  };
+  return (e && m[e.code]) || (e && e.message) || 'Une erreur est survenue';
+}
+
 /* --- boutons occupés --- */
 async function busyBtn(el, fn) {
   if (el.classList.contains('load')) return;
   el.classList.add('load');
   try { await fn() }
-  catch (e) { toast(e.message || 'Une erreur est survenue', 1) }
+  catch (e) { toast(frErr(e), 1) }
   finally { el.classList.remove('load') }
 }
 function copyTxt(el, txt) {
@@ -992,21 +1154,27 @@ function val(id, msg, test) {
   if (!ok) $(id).addEventListener('input', () => w.classList.remove('err'), { once: true });
   return ok ? v : null;
 }
+function voirMdp(id, btn) {
+  const f = $(id); if (!f) return;
+  const vis = f.type === 'password';
+  f.type = vis ? 'text' : 'password';
+  btn.textContent = vis ? 'Masquer' : 'Afficher';
+}
 const isMail = v => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v);
 const isTel = v => v.replace(/\D/g, '').length >= 8;
 
 /* --- images --- */
-function shrink(file, cb) {
+function shrink(file, cb, max = 820, q = .7) {
   if (!/^image\//.test(file.type)) return toast('Ce fichier n’est pas une image', 1);
   const r = new FileReader();
   r.onload = () => {
     const im = new Image();
     im.onload = () => {
-      const max = 820, s = Math.min(1, max / Math.max(im.width, im.height));
+      const s = Math.min(1, max / Math.max(im.width, im.height));
       const c = document.createElement('canvas');
       c.width = Math.round(im.width * s); c.height = Math.round(im.height * s);
       c.getContext('2d').drawImage(im, 0, 0, c.width, c.height);
-      cb(c.toDataURL('image/jpeg', .7));
+      cb(c.toDataURL('image/jpeg', q));
     };
     im.onerror = () => toast('Image illisible', 1);
     im.src = r.result;
@@ -1085,8 +1253,13 @@ function vLock() {
     <p class="lede" style="margin-bottom:28px">Connectez-vous pour gérer vos rendez-vous, votre agenda et votre site.</p>
     ${LIVE ? `
       <div class="fd"><label for="lem">Courriel</label><input id="lem" type="email" autocomplete="email" value="${esc(ADMIN_EMAIL)}"></div>
-      <div class="fd"><label for="lpw">Mot de passe</label><input id="lpw" type="password" autocomplete="current-password" placeholder="••••••••"></div>
-      <button class="b b-br b-w" onclick="busyBtn(this,doAdminLogin)">Se connecter</button>`
+      <div class="fd"><label for="lpw">Mot de passe</label>
+        <div style="position:relative">
+          <input id="lpw" type="password" autocomplete="current-password" placeholder="6 caractères minimum" style="padding-right:84px">
+          <button type="button" class="pw-eye" onclick="voirMdp('lpw',this)">Afficher</button>
+        </div></div>
+      <button class="b b-br b-w" onclick="busyBtn(this,doAdminLogin)">Se connecter</button>
+      <button class="lnk" onclick="busyBtn(this,oubli)">Mot de passe oublié ?</button>`
     : `
       <div class="fd"><label for="pin">Code d'accès</label><input id="pin" type="password" inputmode="numeric" value="${esc(D.cfg.pin)}"></div>
       <button class="b b-br b-w" onclick="tryPin()">Se connecter</button>`}
@@ -1115,6 +1288,17 @@ async function doAdminLogin() {
       <button class="b b-br b-w" style="margin-top:16px" onclick="closeSheet()">Fermer</button>`);
   }
   render();
+}
+async function oubli() {
+  const em = val('lem', 'Indiquez votre courriel', isMail);
+  if (!em) return;
+  await Auth.reset(em.toLowerCase());
+  sheet(sheetTop('Courriel envoyé') + `
+    <p class="lede" style="margin-bottom:14px">Un lien pour choisir un nouveau mot de passe vient d’être envoyé à
+    <b>${esc(em)}</b>.</p>
+    <div class="note">Il peut mettre quelques minutes à arriver. Vérifiez aussi les courriels indésirables —
+    l’expéditeur est <b>noreply@hairmuasir.firebaseapp.com</b>.</div>
+    <button class="b b-br b-w" style="margin-top:18px" onclick="closeSheet()">Compris</button>`);
 }
 async function quitAdm() {
   A.in = false; try { sessionStorage.removeItem('mu_adm') } catch (e) {}
@@ -1171,9 +1355,23 @@ function filtered() {
   if (A.q) { const q = A.q.toLowerCase(); l = l.filter(r => (r.nom + r.tel + svc(r.svc).n).toLowerCase().includes(q)) }
   return l;
 }
+function prochain() {
+  const now = new Date(), cle = isoOf(now) + 'T' + String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+  return D.rdv.filter(r => r.st === 'ok' && (r.date + 'T' + r.time) >= cle)
+              .sort((x, y) => (x.date + x.time).localeCompare(y.date + y.time))[0];
+}
 function aRdv() {
+  const nx = prochain();
+  const tete = nx ? `<div class="cd nx">
+      <div class="tiny" style="color:var(--gold)">Prochain rendez-vous</div>
+      <div class="nx-l"><b class="dis">${nx.date === dPlus(0) ? 'Aujourd’hui' : fdLong(nx.date)} · ${hh(nx.time)}</b>
+        <span>${esc(nx.nom)} — ${esc(svc(nx.svc).n)} · jusqu’à ${hh(finH(nx.time, dureeMin(svc(nx.svc))))}</span></div>
+      <div class="acts" style="border:0;padding-top:12px">
+        <a class="b b-gh b-s" href="tel:${esc(nx.tel)}">Appeler</a>
+        <a class="b b-gh b-s" href="sms:${esc(nx.tel)}">Texto</a>
+      </div></div>` : '';
   const pill = (k, l) => `<button class="ch" aria-pressed="${A.filt === k}" onclick="A.filt='${k}';render()">${l}</button>`;
-  return `<div class="chips">${pill('todo', 'À traiter')}${pill('ok', 'Confirmés')}${pill('all', 'Tous')}</div>
+  return `${tete}<div class="chips">${pill('todo', 'À traiter')}${pill('ok', 'Confirmés')}${pill('all', 'Tous')}</div>
    <div class="srch"><input placeholder="Rechercher une cliente…" value="${esc(A.q)}" oninput="A.q=this.value;majRdv()"></div>
    <div id="rdvList">${rdvCards(filtered())}</div>`;
 }
@@ -1421,7 +1619,7 @@ function aStat() {
   }
   const occ = cap ? Math.round(pris / cap * 100) : 0;
 
-  const bar = (v, max) => `<span class="bar"><i style="width:${Math.round(v / max * 100)}%"></i></span>`;
+  const bar = (v, max) => `<span class="gbar"><i style="width:${Math.round(v / max * 100)}%"></i></span>`;
 
   return `<div class="st" style="margin-top:0">
       <div class="hl"><b>${F(rev)}</b><span class="tiny">Chiffre confirmé</span></div>
@@ -1494,6 +1692,8 @@ function aSrv() {
       <div class="fd"><label>Nom</label><input value="${esc(s.n)}" onchange="edSv('${s.id}','n',this.value,this)"></div>
       <div class="fd"><label>Durée</label><input value="${esc(s.d)}" placeholder="2 h 30" onchange="edSv('${s.id}','d',this.value,this)"></div>
     </div>
+    <div class="fd"><label>Précision affichée (optionnel)</label><input value="${esc(s.desc || '')}"
+      placeholder="Mèches non incluses, cheveux lavés à l’arrivée…" onchange="edSv('${s.id}','desc',this.value,this)"></div>
     <div class="g2" style="align-items:end">
       <div class="fd" style="margin:0"><label>Prix ($)</label><input type="number" step="1" inputmode="decimal" value="${s.p}" onchange="edSv('${s.id}','p',+this.value,this)"></div>
       <button class="b b-gh b-s b-no" onclick="rmItem('services','${s.id}','ce service')">Supprimer</button>
@@ -1517,6 +1717,18 @@ function aInf() {
     <div class="fd"><label>Texte de présentation</label><textarea onchange="edCfg('intro',this.value,this)">${esc(c.intro)}</textarea></div>
   </div>
   <div class="cd">
+    <h4 class="stepl" style="margin-bottom:14px">Photo de couverture</h4>
+    <p class="lede" style="margin-bottom:16px;font-size:14px">La grande image en haut du site. Choisissez votre plus belle réalisation, en hauteur de préférence.</p>
+    <div style="display:flex;gap:18px;align-items:flex-end;flex-wrap:wrap">
+      <div class="fr" style="width:130px;flex:0 0 130px">${c.cover ? `<img src="${c.cover}" alt="">` : art('Tresses', 0)}</div>
+      <div style="flex:1;min-width:190px;display:grid;gap:10px">
+        <label class="b b-br" style="cursor:pointer">${c.cover ? 'Changer la photo' : 'Choisir une photo'}
+          <input type="file" accept="image/*" id="upCover" style="display:none"></label>
+        ${c.cover ? `<button class="b b-gh b-no" onclick="busyBtn(this,async()=>{await putCfg({cover:null});toast('Photo retirée')})">Retirer</button>` : ''}
+      </div>
+    </div>
+  </div>
+  <div class="cd">
     <h4 class="stepl" style="margin-bottom:20px">Contact</h4>
     <div class="g2">${f('tel', 'Téléphone', 'type="tel"')}${f('email', 'Courriel', 'type="email"')}</div>
     <div class="g2">${f('adresse', 'Adresse')}${f('insta', 'Instagram')}</div>
@@ -1535,6 +1747,26 @@ function aInf() {
     ${LIVE ? '' : f('pin', 'Code de l’espace de gestion')}
   </div>
   <div class="cd">
+    <h4 class="stepl" style="margin-bottom:14px">Bon à savoir</h4>
+    <p class="lede" style="margin-bottom:14px;font-size:14px">Une information par ligne. La section n’apparaît sur le site que si elle est remplie.</p>
+    <div class="fd"><textarea style="min-height:120px" placeholder="Merci d’arriver avec les cheveux démêlés.&#10;Annulation gratuite jusqu’à 24 h avant.&#10;Retard de plus de 15 min : le rendez-vous peut être déplacé."
+      onchange="edCfg('infos',this.value,this)">${esc(c.infos || '')}</textarea></div>
+  </div>
+  <div class="cd">
+    <h4 class="stepl" style="margin-bottom:14px">Avis de vos clientes</h4>
+    <p class="lede" style="margin-bottom:16px;font-size:14px">Recopiez des avis réellement reçus (Google, Instagram, messages).
+      La section n’apparaît sur le site que s’il y en a au moins un.</p>
+    ${(c.avis || []).map((v, i) => `<div class="av-l">
+      <div><b>${esc(v.n || 'Cliente')}</b> <span class="gold">${'★'.repeat(+v.s || 5)}</span><br><span>${esc(v.t)}</span></div>
+      <button class="b b-gh b-s b-no" onclick="busyBtn(this,()=>rmAvis(${i}))">×</button></div>`).join('')}
+    <div class="g2" style="margin-top:16px">
+      <div class="fd"><label for="avN">Prénom</label><input id="avN" placeholder="Aïcha D."></div>
+      <div class="fd"><label for="avS">Note</label><select id="avS">${[5,4,3,2,1].map(x => `<option value="${x}">${'★'.repeat(x)}</option>`).join('')}</select></div>
+    </div>
+    <div class="fd"><label for="avT">Avis</label><textarea id="avT" placeholder="Ce que la cliente a écrit…"></textarea></div>
+    <button class="b b-br b-w" onclick="busyBtn(this,addAvis)">Ajouter l’avis</button>
+  </div>
+  <div class="cd">
     <h4 class="stepl" style="margin-bottom:16px">Données</h4>
     <p class="lede" style="margin-bottom:18px;font-size:14px">Téléchargez une copie de vos services, photos, rendez-vous et disponibilités.</p>
     <button class="b b-gh b-w" onclick="expo()">Exporter une sauvegarde</button>
@@ -1543,6 +1775,18 @@ function aInf() {
   </div>`;
 }
 async function edCfg(k, v, el) { await putCfg({ [k]: v }); flash(el) }
+async function addAvis() {
+  const t = $('avT').value.trim();
+  if (!t) return toast('Écrivez le texte de l’avis', 1);
+  const avis = [...(D.cfg.avis || []), { n: $('avN').value.trim(), s: +$('avS').value, t }];
+  await putCfg({ avis });
+  toast('Avis ajouté'); render();
+}
+async function rmAvis(i) {
+  const avis = (D.cfg.avis || []).filter((_, k) => k !== i);
+  await putCfg({ avis });
+  toast('Avis retiré'); render();
+}
 function flash(el) {
   if (!el) return;
   const w = el.closest('.fd') || el.parentNode;
@@ -1575,6 +1819,12 @@ function impo(el) {
 
 /* ---------- envoi de photos ---------- */
 function bind() {
+  const cv = $('upCover');
+  if (cv) cv.onchange = e => {
+    const f = e.target.files[0]; if (!f) return;
+    toast('Préparation de la photo…');
+    shrink(f, async u => { await putCfg({ cover: u }); toast('Photo de couverture mise en ligne'); render() }, 1200, .72);
+  };
   const up = $('upPho');
   if (up) up.onchange = e => {
     const fs = [...e.target.files]; if (!fs.length) return;
